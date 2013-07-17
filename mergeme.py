@@ -10,6 +10,8 @@ import time
 #from bs4 import BeautifulSoup
 #import nltk
 
+KEY = '4D7D7B6884092FAD9E59B6CAA572F588'
+
 class MyClass(object):
     '''
     classdocs
@@ -18,6 +20,7 @@ class MyClass(object):
     heroDict = {}
     requiredDict = {}
     specificationDict = {}
+     
 
     def __init__(self):
         '''
@@ -25,6 +28,21 @@ class MyClass(object):
         '''
         url = "http://api.steampowered.com/ISteamNews/GetNewsForApp/v0001/?format=json&appid=440&count=3"
         self.heroDict = self.getHeroes()
+        
+    # Thought this might simplify things. Can change whether or not it should send requests
+    def steam_request(self, url, params):
+	if url[-1] != '/':
+		url += '/'
+	url += '?key={0}'.format(KEY)
+	for param in params:
+		url += '&{0}'.format(param)
+	try:
+		data = urllib2.urlopen(url)
+	except urllib2.URLError as err:
+		print "URL Error {0}".format(err.reason)
+		return None
+	json_data = json.load(data)
+	return json_data
         
     def getHeroes(self):
         req = urllib2.Request("http://api.steampowered.com/IEconDOTA2_570/GetHeroes/v1?format=json&appid=440&count=3&key=4D7D7B6884092FAD9E59B6CAA572F588&display_name=penguinsmooches&skill=3") # Create request object from URL
@@ -49,7 +67,14 @@ class MyClass(object):
             primaryDomain = "IDOTA2_570"
         
         self.requiredDict['primaryDomain'] = primaryDomain
-        
+
+    # Returns 25 most recent, "Very High" skill games
+    # Default matches returned is 25
+    def get_recent_matches(self):
+        url = 'http://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v1/'
+        params = ['matches_requested=25', 'min_players=10', 'skill=3'] 
+        tmpJSON = self.steam_request(url, params)
+        return tmpJSON['result']
         
     """
     ======================================================================
@@ -82,7 +107,7 @@ class MyClass(object):
         
 jeff = MyClass()
 
-print jeff.tempJSON
+#print jeff.tempJSON
 
 '''
 for match in jeff.tempJSON['result']['matches']:
