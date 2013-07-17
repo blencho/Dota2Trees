@@ -9,3 +9,11 @@ http://dev.dota2.com/showthread.php?t=58317
 
 Python Style Guide:
 http://www.python.org/dev/peps/pep-0008/
+
+Desired Dota 2 Info:
+Hero Roles (Support, Ganker, Hard Carry)
+Spell Type (Global, aoe, etc)
+
+
+Available Dota 2 Info:
+Hero Name

@@ -12,12 +12,20 @@ class TestSteamQueries(unittest.TestCase):
 	#	self.assertFalse(data is None)
 		# print data
 
-	def test_steam_key(self):
+	def test_recent_matches(self):
 		# Get Latest Dota 2 Matches
 		Jeff = MyClass()
-		data = Jeff.get_recent_matches()
+		data = Jeff.get_recent_matches(['matches_requested=1'])
 		self.assertFalse(data is None)
-		print data
+		#print data
+
+	def test_matches_by_player(self):
+                # Get Latest Dota 2 Matches of the.Small.axe
+                Jeff = MyClass()
+                data = Jeff.get_recent_matches(['account_id=76561198077179649',])
+                
+                self.assertFalse(data is None)
+                print data
          
 
 

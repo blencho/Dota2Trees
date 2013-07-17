@@ -52,7 +52,7 @@ class MyClass(object):
         heroList = tempJSON['result']['heroes']
         for hero in heroList: 
             self.heroDict[str(hero['id'])] = hero['name']
-        return
+        return 
     
     def setKey(self,key="4D7D7B6884092FAD9E59B6CAA572F588"):
         self.specificationDict['key'] = "key=%s" % key
@@ -70,9 +70,9 @@ class MyClass(object):
 
     # Returns 25 most recent, "Very High" skill games
     # Default matches returned is 25
-    def get_recent_matches(self):
+    def get_recent_matches(self, params):
         url = 'http://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v1/'
-        params = ['matches_requested=25', 'min_players=10', 'skill=3'] 
+        params.extend(['min_players=10', 'skill=3'])
         tmpJSON = self.steam_request(url, params)
         return tmpJSON['result']
         
