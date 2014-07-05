@@ -17,3 +17,7 @@ Spell Type (Global, aoe, etc)
 
 Available Dota 2 Info:
 Hero Name
+
+Note: to run unit tests, run the following from the ./Dota2Trees directory:
+python -m unittest discover
+
