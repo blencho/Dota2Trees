@@ -20,11 +20,12 @@ NORMAL_SKILL = 1
 HIGH_SKILL = 2
 VERY_HIGH_SKILL = 3
 
+
+
 class SteamRequest(object):
     '''
     classdocs
     '''
-    url = ""
     heroDict = {}
     requiredDict = {}
     specificationDict = {}
@@ -34,8 +35,8 @@ class SteamRequest(object):
         '''
         Constructor
         '''
-        self.url = "http://api.steampowered.com/"
-        self.heroDict = self.getHeroes()
+        if not SteamRequest.heroDict:
+            SteamRequest.heroDict = self.getHeroes() # TODO: not sure if thread safe
         
     # Thought this might simplify things. Can change whether or not it should send requests
     def steam_request(self, domain, cmd, params):
@@ -75,12 +76,15 @@ class SteamRequest(object):
         
         self.requiredDict['primaryDomain'] = primaryDomain
 
-    # Returns 25 most recent, "Very High" skill games
+    # Returns most recent, "Very High" skill games
     # Default matches returned is 25
-    def get_recent_matches(self, params):
+    def get_recent_matches(self, nummatches=1, skill=NORMAL_SKILL, id=-1):
         domain = 'IDOTA2Match_570'
         cmd = 'GetMatchHistory'
-        params.extend(['matches_requested=1','min_players=10', 'skill={0}'.format(VERY_HIGH_SKILL)])
+        params = ['min_players=10', 'matches_requested={0}'.format(str(nummatches)), 
+            'skill={0}'.format(str(skill))]
+        if id != -1:
+            params.extend(['account_id={0}'.format(str(id))])
         tmpJSON = self.steam_request(domain, cmd, params)
         return tmpJSON['result']
         
