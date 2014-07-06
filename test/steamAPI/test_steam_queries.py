@@ -1,6 +1,6 @@
 import unittest
 import json
-from dota2.steam.steamrequests import SteamRequest 
+from dota2.steam.requests import SteamRequest 
 
 # class color:
 #    PURPLE = '\033[95m'
@@ -24,12 +24,12 @@ class TestSteamQueries(unittest.TestCase):
 	#	self.assertFalse(data is None)
 		# print data
 
-	# def test_recent_matches(self):
-	# 	# Get Latest Dota 2 Matches
-	# 	Jeff = SteamRequest()
-	# 	data = Jeff.get_recent_matches()
-	# 	self.assertFalse(data is None)
-	# 	# print data
+	def test_recent_matches(self):
+		# Get Latest Dota 2 Matches
+		Jeff = SteamRequest()
+		data = Jeff.get_recent_matches()
+		self.assertFalse(data is None)
+		# print data
 
 	def test_matches_by_player(self):
 		# Get Latest Dota 2 Matches of the.Small.axe
