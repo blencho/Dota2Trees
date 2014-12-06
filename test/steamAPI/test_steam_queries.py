@@ -52,12 +52,12 @@ class TestSteamQueries(unittest.TestCase):
 				else:
 					dire.extend([hero])
 			header = '{0} {1:^5} {2}'.format('Radiant'.ljust(16), '', 'Dire'.ljust(16))
-			print '\n' + header
-			print '-' * len(header)
-			print 'Player:\t\033[91m{0}\033[0m'.format(player_hero) # prints player hero in red
+			# print '\n' + header
+			# print '-' * len(header)
+			# print 'Player:\t\033[91m{0}\033[0m'.format(player_hero) # prints player hero in red
 			for i, (radPlayer, direPlayer) in enumerate(zip(radiant, dire)):
 				vs = False
 				if i == 2:
 					vs = True
-				print '{0} {1:^5} {2}'.format(radPlayer.ljust(16), 
-					'vs' if vs else '', direPlayer.ljust(16))
+				# print '{0} {1:^5} {2}'.format(radPlayer.ljust(16), 
+					# 'vs' if vs else '', direPlayer.ljust(16))
