@@ -12,14 +12,18 @@ VDF_LINE_FORMAT = r"\"(\w+)\"\s+\"(\w+)\""
 
 def update():
 	_load_heroes()
-	# _load_abilities()
-#
-# ==================================================================================
-#
+	_load_abilities()
+	return
+"""
+==================================================================================
+                                                            HERO UPDATE PROCEDURES
+==================================================================================
+"""
 def _load_heroes():
 	#
 	fh 				= open(HERO_FILE)
 	heroes 			= {}
+	curHero			= {}
 	stack 			= []
 	curHeroBlock	= ""
 	beginNewBlock	= False
@@ -55,8 +59,8 @@ def _load_heroes():
 				#
 			else:
 				#		
-				setHeroDictionary(hero, curHeroBlock)
-				heroes[hero['Name']] = hero
+				setHeroDictionary(curHero, curHeroBlock)
+				heroes[curHero['Name']] = curHero
 				beginNewBlock 	= False
 				curHeroBlock	= ""
 			#
@@ -66,8 +70,8 @@ def _load_heroes():
 			#
 			if (m is not None):
 				#
-				hero 			= {}
-				hero['Name'] 	= m.group(1)
+				curHero 		= {}
+				curHero['Name'] = m.group(1)
 				beginNewBlock	= True
 				#
 			#
@@ -77,7 +81,9 @@ def _load_heroes():
 		json.dump(heroes, outFile, sort_keys = True, indent = 4)
 	#
 	return
-
+#
+# ==================================================================================
+#
 def setHeroDictionary(heroDict, heroBlock):
 	#
 	tokenList	= [	"General", "Abilities", "Armor", "Attack", "Attributes", "Bounty", 
@@ -87,11 +93,107 @@ def setHeroDictionary(heroDict, heroBlock):
 		heroDict[token]	= parseItem(heroBlock, token)
 	#
 	return
+"""
+==================================================================================
+                                                         ABILITY UPDATE PROCEDURES
+==================================================================================
+"""
+def _load_abilities():
+	#
+	fh 				= open(ABILITY_FILE)
+	abilities		= {}
+	curAbility		= {}
+	curAbilityBlock	= ""
+	beginNewBlock	= False
+	nameSearch		= False
+	bracketDepth	= 0
+	#
+	openToken		= re.compile("{")
+	clsdToken		= re.compile("}")
+	nameToken		= re.compile("\"(\w+)\"")
+	abilityToken	= re.compile(r"// Ability: (\w+)")
+	#
+	for line in fh:
+		#
+		if beginNewBlock:
+			#
+			opened	= openToken.search(line)
+			#
+			if opened is not None:
+				#
+				bracketDepth += 1
+				#
+			else:
+				#
+				closed	= clsdToken.search(line)
+				#
+				if closed is not None:
+					#
+					bracketDepth -= 1
+					#
+				#
+			#
+			if (bracketDepth > 0):
+				#
+				curAbilityBlock += line
+				#
+			else:
+				#		
+				setAbilityDictionary(curAbility, curAbilityBlock)
+				abilities[curAbility['Name']] 	= curAbility
+				beginNewBlock 					= False
+				curAbilityBlock					= ""
+			#
+		else:
+			#
+			m	= abilityToken.search(line)
+			#
+			if (m is not None):
+				#
+				nameSearch	= True
+				#
+			elif nameSearch:
+				#
+				nameMatch	= nameToken.search(line)
+				if (nameMatch is not None):
+					#
+					curAbility 			= {}
+					curAbility['Name'] 	= nameMatch.group(1)
+					beginNewBlock		= True
+					#
+				#
+			#
+		#
+	#
+	with open('abilities.json', 'w') as outFile:
+		json.dump(abilities, outFile, sort_keys = True, indent = 4)
+	#
+	return
 
-def parseItem(heroBlock, itemName):
+def setAbilityDictionary(abilityDict, abilityBlock):
+	lineList		= abilityBlock.splitlines()
+	tokenList		= []
+	#
+	itemToken		= re.compile("// (\w+)")
+	#
+	for line in lineList:
+		#
+		itemMatch	= itemToken.search(line)
+		#
+		if itemMatch is not None:
+			tokenList.append(itemMatch.group(1))
+			#
+		#
+	#
+	for token in tokenList:
+		abilityDict[token] = parseItem(abilityBlock, token)
+	#
+	return
+
+def parseItem(textBlock, itemName):
 	beginItemBlock 	= False
 	endItemBlock	= False
-	lineList		= heroBlock.splitlines()
+	lineList		= textBlock.splitlines()
 	itemDictionary	= {}
 	#
 	itemToken		= re.compile("// " + itemName)
@@ -148,14 +250,4 @@ def parseItem(heroBlock, itemName):
 #
 # ==================================================================================
 #
-class hero():
-	#
-	#
-	#
-	def __init(self):
-		return
-#
-#
-#
-
 	
