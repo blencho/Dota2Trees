@@ -200,32 +200,111 @@ def parseItem(textBlock, itemName):
 	subItemToken	= re.compile('\"(.+)\"\s+\"(.+)\"')
 	nextItemToken	= re.compile("// \w+")
 	#
+	if itemName ==  "Special":
+		#
+		return parseAbilitySpecial(textBlock)
+		#
+	else:
+		for line in lineList:
+			#
+			itemMatch	= itemToken.search(line)
+			#
+			if beginItemBlock:
+				#
+				if endItemBlock:
+					#
+					return itemDictionary
+					#
+				else:
+					#
+					subItemMatch	= subItemToken.search(line)
+					#
+					if subItemMatch is not None:
+						#
+						itemDictionary[subItemMatch.group(1)]	= subItemMatch.group(2)
+						#
+					else:
+						#
+						nextItemMatch = nextItemToken.search(line)
+						#
+						if nextItemMatch is not None:
+							#
+							endItemBlock = True
+							#
+						#
+					#
+				#
+			elif itemMatch is not None:
+				#
+				beginItemBlock = True
+				#
+			#
+		#
+	#
+	return itemDictionary
+#
+#
+#
+def parseAbilitySpecial(textBlock):
+	beginItemBlock 		= False
+	lineList			= textBlock.splitlines()
+	abilitySpecialDict	= {}
+	#
+	itemToken			= re.compile("\"AbilitySpecial\"")
+	subItemToken		= re.compile('\"(.+)\"\s+\"(.+)\"')
+	keyToken			= re.compile("\"(\d+)\"")
+	curKey				= ""
+	#
+	bracketDepth		= 0
+	openToken			= re.compile("{")
+	clsdToken			= re.compile("}")
+	#
+
 	for line in lineList:
+
+		#
 		#
 		itemMatch	= itemToken.search(line)
 		#
 		if beginItemBlock:
 			#
-			if endItemBlock:
+			opened	= openToken.search(line)
+			#
+			if opened is not None:
 				#
-				return itemDictionary
+				bracketDepth += 1
 				#
 			else:
+				#
+				closed	= clsdToken.search(line)
+				#
+				if closed is not None:
+					#
+					bracketDepth -= 1
+					#
+				#
+			#
+			if bracketDepth == 0:
+				#
+				return abilitySpecialDict
+				#
+			elif (bracketDepth == 1):
+				#
+				keyMatch	= keyToken.search(line)
+				#
+				if keyMatch is not None:
+					#
+					curKey						= keyMatch.group(1)
+					abilitySpecialDict[curKey]	= {}
+					#
+				#
+			elif (bracketDepth == 2):
 				#
 				subItemMatch	= subItemToken.search(line)
 				#
 				if subItemMatch is not None:
 					#
-					itemDictionary[subItemMatch.group(1)]	= subItemMatch.group(2)
-					#
-				else:
-					#
-					nextItemMatch = nextItemToken.search(line)
-					#
-					if nextItemMatch is not None:
-						#
-						endItemBlock = True
-						#
+					abilitySpecialDict[curKey][subItemMatch.group(1)]	= subItemMatch.group(2)
 					#
 				#
 			#
@@ -235,8 +314,7 @@ def parseItem(textBlock, itemName):
 			#
 		#
 	#
-	return itemDictionary
-
+	return abilitySpecialDict
 #
 # ==================================================================================
 #
