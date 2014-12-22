@@ -6,13 +6,18 @@ import json
 RESOURCE_DIR = os.path.join(os.path.dirname(__file__), os.pardir, 'resources')
 HERO_FILE = RESOURCE_DIR + '/npc_heroes.txt'
 ABILITY_FILE = RESOURCE_DIR + '/npc_abilities.txt'
-
+HERO_JSON = RESOURCE_DIR + '/abilities.json'
 VDF_LINE_FORMAT = r"\"(\w+)\"\s+\"(\w+)\""
 
 
 def update():
 	_load_heroes()
 	_load_abilities()
+	#
+	hello = open(HERO_JSON)
+	hi = json.load(hello)
+	#
+	print hi['gnoll_assassin_envenomed_weapon']['Special']
 	return
 """
 ==================================================================================

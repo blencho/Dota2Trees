@@ -7,10 +7,11 @@ import urllib2
 import json
 import zlib
 import time
+from dota2.resources.constants import *
+import os
+from pymongo import MongoClient
 #from bs4 import BeautifulSoup
 #import nltk
-
-KEY = '4D7D7B6884092FAD9E59B6CAA572F588'
 
 class MyClass(object):
     '''
@@ -26,26 +27,54 @@ class MyClass(object):
         '''
         Constructor
         '''
+        #
+        connection = MongoClient()
+        
+        # connect to the students database and the ctec121 collection
+        db = connection.matchDB.matches
+
         url = "http://api.steampowered.com/ISteamNews/GetNewsForApp/v0001/?format=json&appid=440&count=3"
         self.heroDict = self.getHeroes()
         
+        #req = urllib2.Request("http://api.steampowered.com/IDOTA2Match_<1>/GetMatchDetails/v1?format=json&appid=440&count=3&key="+UserKey) # Create request object from URL
+        #req = urllib2.Request("http://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v1?format=json&appid=440&count=3&key="+UserKey+"&display_name=penguinsmooches&date_min=1368580298&date_max=1368598684") # Create request object from URL
+        req = urllib2.Request("http://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/v1?key="+UserKey+"&format="+OutputFormat+"&match_id=1100279346") # Create request object from URL
+        #print "."
+        opener = urllib2.build_opener() # Construct 'opener'
+        #print "."
+        jsonObj = opener.open(req) # Grab compressed file from URL with opener
+        #print "."
+        #decompressed = zlib.decompress(gzippedFile.read(), 16+zlib.MAX_WBITS) # Extract string version of JSON obj
+        tempJSON = json.load(jsonObj) # Convert string version of JSON obj to a JSON obj
+        
+        # insert the record
+        db.insert(tempJSON)
+        
+        # find all documents
+        results = db.find()
+        
+        for record in results:
+            print record
+        #
+        #print os.getcwd()
+        
     # Thought this might simplify things. Can change whether or not it should send requests
     def steam_request(self, url, params):
-	if url[-1] != '/':
-		url += '/'
-	url += '?key={0}'.format(KEY)
-	for param in params:
-		url += '&{0}'.format(param)
-	try:
-		data = urllib2.urlopen(url)
-	except urllib2.URLError as err:
-		print "URL Error {0}".format(err.reason)
-		return None
-	json_data = json.load(data)
-	return json_data
+        if url[-1] != '/':
+            url += '/'
+        url += '?key={0}'.format(UserKey)
+        for param in params:
+            url += '&{0}'.format(param)
+        try:
+            data = urllib2.urlopen(url)
+        except urllib2.URLError as err:
+            print "URL Error {0}".format(err.reason)
+            return None
+        json_data = json.load(data)
+        return json_data
         
     def getHeroes(self):
-        req = urllib2.Request("http://api.steampowered.com/IEconDOTA2_570/GetHeroes/v1?format=json&appid=440&count=3&key=4D7D7B6884092FAD9E59B6CAA572F588&display_name=penguinsmooches&skill=3") # Create request object from URL
+        req = urllib2.Request("http://api.steampowered.com/IEconDOTA2_570/GetHeroes/v1?format=json&appid=440&count=3&key="+UserKey+"&display_name=penguinsmooches&skill=3") # Create request object from URL
         opener = urllib2.build_opener() # Construct 'opener'
         jsonObj = opener.open(req) # Grab compressed file from URL with opener
         tempJSON = json.load(jsonObj) # Convert string version of JSON obj to a JSON obj
@@ -93,18 +122,10 @@ class MyClass(object):
         pass
     
 
-    req = urllib2.Request("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v1?format=json&appid=440&count=3&key=4D7D7B6884092FAD9E59B6CAA572F588&steamids=76561197970825781") # Create request object from URL
-    #req = urllib2.Request("http://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v1?format=json&appid=440&count=3&key=4D7D7B6884092FAD9E59B6CAA572F588&display_name=penguinsmooches&date_min=1368580298&date_max=1368598684") # Create request object from URL
-    #print "."
-    opener = urllib2.build_opener() # Construct 'opener'
-    #print "."
-    jsonObj = opener.open(req) # Grab compressed file from URL with opener
-    #print "."
-    #decompressed = zlib.decompress(gzippedFile.read(), 16+zlib.MAX_WBITS) # Extract string version of JSON obj
-    tempJSON = json.load(jsonObj) # Convert string version of JSON obj to a JSON obj
     
     
-        
+    
+
 jeff = MyClass()
 
 #print jeff.tempJSON
