@@ -4,6 +4,7 @@ Created on May 15, 2013
 @author: Jeff
 '''
 import urllib2
+from bson.json_util import dumps
 import json
 import zlib
 import time
@@ -27,51 +28,41 @@ class MyClass(object):
         '''
         Constructor
         '''
+        #self.growMatchCollection(AllPick, 500, 1110285949)
         #
-        connection = MongoClient()
-        
         # connect to the students database and the ctec121 collection
-        db = connection.matchDB.matches
 
-        url = "http://api.steampowered.com/ISteamNews/GetNewsForApp/v0001/?format=json&appid=440&count=3"
-        self.heroDict = self.getHeroes()
+        #url = "http://api.steampowered.com/ISteamNews/GetNewsForApp/v0001/?format=json&appid=440&count=3"
+        #self.heroDict = self.getHeroes()
         
         #req = urllib2.Request("http://api.steampowered.com/IDOTA2Match_<1>/GetMatchDetails/v1?format=json&appid=440&count=3&key="+UserKey) # Create request object from URL
         #req = urllib2.Request("http://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v1?format=json&appid=440&count=3&key="+UserKey+"&display_name=penguinsmooches&date_min=1368580298&date_max=1368598684") # Create request object from URL
-        req = urllib2.Request("http://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/v1?key="+UserKey+"&format="+OutputFormat+"&match_id=1100279346") # Create request object from URL
+        #req = urllib2.Request("http://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/v1?key="+UserKey+"&format="+OutputFormat+"&match_id=1100279346") # Create request object from URL
         #print "."
-        opener = urllib2.build_opener() # Construct 'opener'
+        #opener = urllib2.build_opener() # Construct 'opener'
         #print "."
-        jsonObj = opener.open(req) # Grab compressed file from URL with opener
+        #jsonObj = opener.open(req) # Grab compressed file from URL with opener
         #print "."
         #decompressed = zlib.decompress(gzippedFile.read(), 16+zlib.MAX_WBITS) # Extract string version of JSON obj
-        tempJSON = json.load(jsonObj) # Convert string version of JSON obj to a JSON obj
+        #tempJSON = json.load(jsonObj) # Convert string version of JSON obj to a JSON obj
         
         # insert the record
-        db.insert(tempJSON)
-        
+        #db.insert(tempJSON["result"])
+        #'''
         # find all documents
+        connection = MongoClient()
+        db = connection["MatchesDB"]["AllPick"]
+        db.remove({})
         results = db.find()
-        
+        #self.curJSON    = self.getMatchDetails( MatchID=1110285949)
+        #print self.curJSON
+        #print "hi"
+        f   = open("TEST.txt","w")
         for record in results:
             print record
-        #
+        f.close()
         #print os.getcwd()
-        
-    # Thought this might simplify things. Can change whether or not it should send requests
-    def steam_request(self, url, params):
-        if url[-1] != '/':
-            url += '/'
-        url += '?key={0}'.format(UserKey)
-        for param in params:
-            url += '&{0}'.format(param)
-        try:
-            data = urllib2.urlopen(url)
-        except urllib2.URLError as err:
-            print "URL Error {0}".format(err.reason)
-            return None
-        json_data = json.load(data)
-        return json_data
+        #'''
         
     def getHeroes(self):
         req = urllib2.Request("http://api.steampowered.com/IEconDOTA2_570/GetHeroes/v1?format=json&appid=440&count=3&key="+UserKey+"&display_name=penguinsmooches&skill=3") # Create request object from URL
@@ -83,46 +74,64 @@ class MyClass(object):
             self.heroDict[str(hero['id'])] = hero['name']
         return 
     
-    def setKey(self,key="4D7D7B6884092FAD9E59B6CAA572F588"):
-        self.specificationDict['key'] = "key=%s" % key
+    def growMatchCollection(self, RequestedGameMode, NumMatchesRequested, StartingMatchID):
+        #
+        self.curDB              = self.getDatabase("MatchesDB")
+        self.curMatch           = None
+        #
+        if RequestedGameMode == AllPick:
+            self.curMatchCollection = self.curDB['AllPick']
+        #
+        # Somewhere in here search for last match. 
+        #
+        self.curMatchHistory    = self.getMatchHistory(NumMatchesRequested=NumMatchesRequested, RequestedGameMode=RequestedGameMode)
+        #
+        f = open("MatchHistoryExample.json", "w")
+        for match in self.curMatchHistory["matches"]:
+            if len(match["players"]) < 10:
+                pass
+            else:
+                self.curMatch           = self.getMatchDetails(MatchID=match["match_id"])['result']
+                time.sleep(1)
+                self.curMatchCollection.insert(self.curMatch)
+        f.close()
         return
-    
-    def setPrimaryDomain(self,primaryDomain = "IDOTA2_570"):
-
-        try:
-            assert(primaryDomain in ["IDOTA2_570","IDOTA2Match_570","ISteamUser"])
-        except AssertionError:
-            print "Invalid primary domain. Defaulting to 'IDOTA2_570'"
-            primaryDomain = "IDOTA2_570"
         
-        self.requiredDict['primaryDomain'] = primaryDomain
-
+    def getDatabase(self, DatabaseName):
+        self.client = MongoClient()
+        return self.client[DatabaseName]
+        
     # Returns 25 most recent, "Very High" skill games
     # Default matches returned is 25
-    def get_recent_matches(self, params):
-        url = 'http://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v1/'
-        params.extend(['min_players=10', 'skill=3'])
-        tmpJSON = self.steam_request(url, params)
-        return tmpJSON['result']
-        
-    """
-    ======================================================================
-    IDOTA2_570 Methods
-    ======================================================================
-    """
+    def getMatchHistory(self, StartingMatchID=None, NumMatchesRequested=1, RequestedGameMode=AllPick):
+        #
+        if StartingMatchID is not None:
+            self.curURL     = GetMatchHistory+"key="+UserKey+"&format="+OutputFormat+"&game_mode="+str(RequestedGameMode)+ \
+                              "&start_at_match_id="+str(StartingMatchID)+"&matches_requested="+str(NumMatchesRequested)+"&min_players=10"
+        else:
+            self.curURL     = GetMatchHistory+"key="+UserKey+"&format="+OutputFormat+"&game_mode="+str(RequestedGameMode)+ \
+                              "&matches_requested="+str(NumMatchesRequested)+"&min_players=10"
+        #
+        self.curJSON    = self.GetJSONFromURL(self.curURL)
+        return self.curJSON["result"]
     
-    
-    """
-    ======================================================================
-    ISteamUser Methods
-    ======================================================================
-    """
-    
-    def getPlayerSummary(self, listOfPlayerIDS):
-        pass
-    
+    def getMatchDetails(self, MatchID = None):
+        #
+        if MatchID is not None:
+            self.curURL     = GetMatchDetails+"key="+UserKey+"&format="+OutputFormat+"&match_id="+str(MatchID)
+        else:
+            print "ERROR WILL ROBINSON"
+            return
+        #
+        self.curJSON    = self.GetJSONFromURL(self.curURL)
+        return self.curJSON
 
-    
+    def GetJSONFromURL(self, inputURL):
+        self.req        = urllib2.Request(inputURL)
+        self.opener     = urllib2.build_opener() # Construct 'opener'
+        self.WrapJSON   = self.opener.open(self.req) # Grab compressed file from URL with opener
+        self.curJSON    = json.load(self.WrapJSON)
+        return self.curJSON
     
     
 
