@@ -1,0 +1,16 @@
+table tr th {
+    width: 50%;
+}
+
+table tr td {
+    width: 50%;
+    text-align: center;
+}
+
+.hero-entry .radiant {
+    background-color: #7FFFD4;
+}
+
+.hero-entry .dire {
+    background-color: #CD5C5C;
+}
