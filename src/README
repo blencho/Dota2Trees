@@ -1,0 +1,23 @@
+Your Steam Web API Key
+Key: F7DB115339A12F8A0D76AF7250A5B1AD
+Domain Name: www.dotatrees.com # Unimportant
+
+Useful Links for Steam API
+http://wiki.teamfortress.com/wiki/WebAPI
+http://dev.dota2.com/showthread.php?t=47115
+http://dev.dota2.com/showthread.php?t=58317
+
+Python Style Guide:
+http://www.python.org/dev/peps/pep-0008/
+
+Desired Dota 2 Info:
+Hero Roles (Support, Ganker, Hard Carry)
+Spell Type (Global, aoe, etc)
+
+
+Available Dota 2 Info:
+Hero Name
+
+Note: to run unit tests, run the following from the ./Dota2Trees directory:
+python -m unittest discover
+
