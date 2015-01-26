@@ -3,32 +3,38 @@
 {% load staticfiles %}
 <link rel="stylesheet" type="text/css" href="{% static 'pubWeb/style.css' %}" />
 
-<script ty[e="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js">
-    var defInput = "Enter hero number!!!!!"
-    window.onload = function() {
-        console.log("Initialization");
-        initInputs();
-    };
+<script style="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js">
+    // Have to debug javascript, not running
+    var defInput = "Enter hero number";
+    // window.onload = function() {
+    //     console.log("Initialization");
+    //     initInputs();
+    // };
+    // $(document).ready(function () {
+    //     console.log("Hello");
+    //     initInputs();
+    // });
+
+    function focusInput() {
+        if (this.value == defInput) {
+            this.value = '';
+        }
+    }
 
     function initInputs() {
         $(".hero-entry input").value = defInput;
         $(".hero-entry input").onfocus = focusInput;
     }
-
-    function focusInput() {
-        if (this.value == defInput)
-            this.value = '';
-    }
 </script>
 
 <p>"Welcome to PubStomprs...Get to stomping"</p>
 {% if get_selection %}
-    Your team:
-    <select>
-        <option value="0">Radiant</option>
-        <option value="1">Dire</option>
-    </select>
-    <form method="GET">
+    <form method="GET" action="/pubExec">
+        Your team:
+        <select name="team">
+            <option value="0">Radiant</option>
+            <option value="1">Dire</option>
+        </select>
         <table style="width:50%">
             <tr>
                 <th>Radiant</th>
@@ -39,7 +45,7 @@
                     <input type="text" name="0.1">
                 </td>
                 <td class="dire">
-                    <input type="text" name="1.1" >
+                    <input type="text" name="1.1">
                 </td>
     	    </tr>
             <tr class="hero-entry">
