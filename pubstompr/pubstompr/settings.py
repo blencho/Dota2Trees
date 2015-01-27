@@ -62,8 +62,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME':     'pubstompr',
-        'USER':     'belai',
-        'PASSWPRD': 'zelda64',
+        'USER':     '',
+        'PASSWPRD': '',
         'HOST':     '127.0.0.1',
         'PORT':     '5432',
     }
