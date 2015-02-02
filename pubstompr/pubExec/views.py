@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from pubstompr import pubstomp
 
 def index(request):
-    defaultHero = 1;
+    defaultHero = -1;
     radiant = [];
     radKeys = ["0.1", "0.2", "0.3", "0.4", "0.5"];
 
@@ -15,9 +15,7 @@ def index(request):
     team = queryDict.get("team", 0);
     for i in range(5):
         radiant.append(queryDict.get(radKeys[i], defaultHero));
-        defaultHero += 1;
         dire.append(queryDict.get(direKeys[i], defaultHero));
-        defaultHero += 1;
 
     # Call python executable
     recommend = pubstomp(team, radiant, dire);
